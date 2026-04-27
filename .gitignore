@@ -1,0 +1,12 @@
+# MATLAB temporary files
+*.asv
+*.m~
+*.fig
+*.mex*
+
+# Course data files
+data/*.mat
+
+# OS files
+.DS_Store
+Thumbs.db
