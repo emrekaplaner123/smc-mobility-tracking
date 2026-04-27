@@ -15,22 +15,27 @@ The project covers:
 - investigation of particle degeneracy through effective sample size,
 - inference of the most likely driving command over time,
 - approximate maximum likelihood estimation of the observation noise standard deviation.
-
 ## Model
 
 The hidden state is
 
-\[
+```math
 X_n =
-(X_n^1, \dot X_n^1, \ddot X_n^1,
- X_n^2, \dot X_n^2, \ddot X_n^2)^\top,
-\]
+\left(
+X_n^1,
+\dot X_n^1,
+\ddot X_n^1,
+X_n^2,
+\dot X_n^2,
+\ddot X_n^2
+\right)^\top,
+```
 
 where \(X_n^1\) and \(X_n^2\) are the target positions in the plane. The state evolves according to
 
-\[
+```math
 X_{n+1} = \Phi X_n + \Psi_z Z_n + \Psi_w W_{n+1},
-\]
+```
 
 where \(Z_n\) is a discrete driving command and \(W_{n+1}\) is Gaussian process noise.
 
@@ -44,14 +49,19 @@ The driving command has five possible values:
 
 The RSSI observation from base station \(\ell\) is modeled as
 
-\[
+```math
 Y_n^\ell =
 v - 10\eta \log_{10}
 \left\|
-(X_n^1, X_n^2)^\top - \pi_\ell
+\begin{pmatrix}
+X_n^1 \\
+X_n^2
+\end{pmatrix}
+-
+\pi_\ell
 \right\|
 + V_n^\ell,
-\]
+```
 
 where \(\pi_\ell\) is the position of base station \(\ell\), \(v\) is the transmission power, \(\eta\) is the slope index, and \(V_n^\ell\) is Gaussian observation noise.
 
