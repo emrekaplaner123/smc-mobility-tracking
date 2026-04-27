@@ -110,7 +110,7 @@ X_0 \sim
 \mathcal N
 \left(
 0_{6 \times 1},
-\operatorname{diag}(500,5,5,200,5,5)
+\mathrm{diag}(500,5,5,200,5,5)
 \right).
 ```
 
