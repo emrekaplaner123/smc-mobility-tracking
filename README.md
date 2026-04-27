@@ -15,6 +15,7 @@ The project covers:
 - investigation of particle degeneracy through effective sample size,
 - inference of the most likely driving command over time,
 - approximate maximum likelihood estimation of the observation noise standard deviation.
+
 ## Model
 
 The hidden state is
@@ -31,15 +32,102 @@ X_n^2,
 \right)^\top,
 ```
 
-where \(X_n^1\) and \(X_n^2\) are the target positions in the plane. The state evolves according to
+where $X_n^1$ and $X_n^2$ are the target positions in the plane, $\dot X_n^1$ and $\dot X_n^2$ are velocities, and $\ddot X_n^1$ and $\ddot X_n^2$ are accelerations.
+
+The state evolves according to
 
 ```math
-X_{n+1} = \Phi X_n + \Psi_z Z_n + \Psi_w W_{n+1},
+X_{n+1} = \Phi X_n + \Psi_z Z_n + \Psi_w W_{n+1}.
 ```
 
-where \(Z_n\) is a discrete driving command and \(W_{n+1}\) is Gaussian process noise.
+The matrices are block diagonal:
 
-The driving command has five possible values:
+```math
+\Phi =
+\begin{pmatrix}
+\widetilde \Phi & 0_{3 \times 3} \\
+0_{3 \times 3} & \widetilde \Phi
+\end{pmatrix},
+\qquad
+\Psi_z =
+\begin{pmatrix}
+\widetilde \Psi_z & 0_{3 \times 1} \\
+0_{3 \times 1} & \widetilde \Psi_z
+\end{pmatrix},
+\qquad
+\Psi_w =
+\begin{pmatrix}
+\widetilde \Psi_w & 0_{3 \times 1} \\
+0_{3 \times 1} & \widetilde \Psi_w
+\end{pmatrix}.
+```
+
+The one-dimensional motion blocks are
+
+```math
+\widetilde \Phi =
+\begin{pmatrix}
+1 & \Delta t & \Delta t^2/2 \\
+0 & 1 & \Delta t \\
+0 & 0 & \alpha
+\end{pmatrix},
+\qquad
+\widetilde \Psi_z =
+\begin{pmatrix}
+\Delta t^2/2 \\
+\Delta t \\
+0
+\end{pmatrix},
+\qquad
+\widetilde \Psi_w =
+\begin{pmatrix}
+\Delta t^2/2 \\
+\Delta t \\
+1
+\end{pmatrix}.
+```
+
+In this project,
+
+```math
+\Delta t = 0.5,
+\qquad
+\alpha = 0.6,
+\qquad
+\sigma = 0.5.
+```
+
+The process noise satisfies
+
+```math
+W_n \sim \mathcal N(0_{2 \times 1}, \sigma^2 I_2).
+```
+
+The initial state is distributed as
+
+```math
+X_0 \sim
+\mathcal N
+\left(
+0_{6 \times 1},
+\operatorname{diag}(500,5,5,200,5,5)
+\right).
+```
+
+The driving command $Z_n$ is a Markov chain with five possible values:
+
+```math
+Z_n \in
+\left\{
+\begin{pmatrix}0\\0\end{pmatrix},
+\begin{pmatrix}3.5\\0\end{pmatrix},
+\begin{pmatrix}0\\3.5\end{pmatrix},
+\begin{pmatrix}0\\-3.5\end{pmatrix},
+\begin{pmatrix}-3.5\\0\end{pmatrix}
+\right\}.
+```
+
+These correspond to:
 
 1. stay,
 2. east,
@@ -47,7 +135,21 @@ The driving command has five possible values:
 4. south,
 5. west.
 
-The RSSI observation from base station \(\ell\) is modeled as
+The transition matrix of the driving command is
+
+```math
+P =
+\frac{1}{20}
+\begin{pmatrix}
+16 & 1 & 1 & 1 & 1 \\
+1 & 16 & 1 & 1 & 1 \\
+1 & 1 & 16 & 1 & 1 \\
+1 & 1 & 1 & 16 & 1 \\
+1 & 1 & 1 & 1 & 16
+\end{pmatrix}.
+```
+
+The RSSI observation from base station $\ell$ is modeled as
 
 ```math
 Y_n^\ell =
@@ -60,11 +162,18 @@ X_n^2
 -
 \pi_\ell
 \right\|
-+ V_n^\ell,
++ V_n^\ell.
 ```
 
-where \(\pi_\ell\) is the position of base station \(\ell\), \(v\) is the transmission power, \(\eta\) is the slope index, and \(V_n^\ell\) is Gaussian observation noise.
+Here $\pi_\ell$ is the position of base station $\ell$, $v=90$ is the transmission power, $\eta=3$ is the slope index, and
 
+```math
+V_n^\ell \sim \mathcal N(0,\varsigma^2),
+\qquad
+\varsigma = 1.5.
+```
+
+For observation-noise calibration, $\varsigma$ is treated as unknown and estimated from the RSSI measurements using an approximate particle-filter likelihood.
 ## Methods
 
 ### Sequential Importance Sampling
